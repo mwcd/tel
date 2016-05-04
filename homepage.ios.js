@@ -36,9 +36,8 @@ class homepage extends Component {
     fetch(REQUEST_URL)
     .then((response) => response.json())
     .then((responseData) => {
-      console.log(responseData);
       this.setState({
-        dataSource: this.state.dataSource.cloneWithRows(responseData),
+        dataSource: this.state.dataSource.cloneWithRows(responseData.Solutions),
         loaded: true,
       });
     })
@@ -70,7 +69,6 @@ class homepage extends Component {
     return (
       <ListView
         dataSource={this.state.dataSource}
-        renderHeader={this._renderHeader}
         renderRow={this._renderRow}
         style={styles.listView}
       />
@@ -87,13 +85,6 @@ class homepage extends Component {
     );
   }
 
-  _renderHeader() {
-    return (
-      <TouchableHighlight underlayColor="#DDDDDD" onPress={this.test}>
-        <Text style={styles.title}>Refresh</Text>
-      </TouchableHighlight>
-    );
-  }
 
   test() {
     console.log("Button works.`")
@@ -107,6 +98,7 @@ class homepage extends Component {
       tempUrl = tempUrl.replace(new RegExp("_", 'g'), "-");
       url="https://raw.githubusercontent.com/techxlab/images.techxlab.org/gh-pages" + tempUrl;
     }
+    console.log(data);
     return (
       <View style={styles.container}>
         <Image
@@ -115,7 +107,6 @@ class homepage extends Component {
         />
         <View style={styles.rightContainer}>
           <Text style={styles.title}>{data.name}</Text>
-          
         </View>
       </View>
     );
