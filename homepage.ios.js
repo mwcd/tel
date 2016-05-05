@@ -15,7 +15,7 @@ var REQUEST_URL = 'http://www.techxlab.org/pages.json';
 
 class homepage extends Component {
   componentDidMount() {
-    this.fetchData();
+    this.loadData();
   }
   constructor(props) {
     super(props); 
@@ -27,36 +27,33 @@ class homepage extends Component {
       refreshing: false,
     };
   }
-  fetchData() {
+  fetchData(event) {
+    this.setState({
+      loaded: false,
+    });
     fetch(REQUEST_URL)
-    .then((response) => response.json())
-    .then((responseData) => {
-      this.setState({
-        dataSource: this.state.dataSource.cloneWithRows(responseData.Solutions),
-        loaded: true,
-      });
-    })
-    .done();
+      .then((response) => response.json())
+      .then((responseData) => {
+        AsyncStorage.setItem("data", JSON.stringify(responseData.Solutions));
+        this.setState({
+          loaded: true,
+        });
+      })
+      .done();
   }
-  // fetchData(event) {
-  //   console.log("boop");
-  //   this.setState({
-  //     dataSource: this.state.dataSource.cloneWithRows(result),
-  //     loaded: false,
-  //   });
-  //   fetch(REQUEST_URL)
-  //     .then((response) => response.json())
-  //     .then((responseData) => {
-  //       AsyncStorage.setItem("data", JSON.stringify(responseData.Solutions));
-  //       AsyncStorage.getItem('data', (err, result) => {
-  //         this.setState({
-  //           dataSource: this.state.dataSource.cloneWithRows(result),
-  //           loaded: true,
-  //         });
-  //       });
-  //     })
-  //     .done();
-  // }
+  loadData() {
+    AsyncStorage.getItem('data', (err, result) => {
+          if(result != null) {
+            final=JSON.parse(result)
+            this.setState({
+              dataSource: this.state.dataSource.cloneWithRows(final),
+              loaded: true,
+            });
+          } else {
+            this.fetchData
+          }
+        });
+  }
    render() {
     if (!this.state.loaded) {
       return this.renderLoadingView();
@@ -79,7 +76,7 @@ class homepage extends Component {
             source={require('./icons/search.png')}
             style={styles.search}
           />
-          <TouchableHighlight underlayColor="#DDDDDD" onPress={()=>this.test()}>
+          <TouchableHighlight underlayColor="#5EC54B" onPress={()=>this.fetchData()}>
             <Image
               source={require('./icons/refresh.png')}
               style={styles.refresh}
@@ -103,11 +100,6 @@ class homepage extends Component {
         </Text>
       </View>
     );
-  }
-
-
-  test() {
-    console.log("Button works.")
   }
 
   _renderRow(data) {
