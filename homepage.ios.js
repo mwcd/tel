@@ -1,9 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
-
 import React, {
   AppRegistry,
   AsyncStorage,
@@ -14,6 +8,7 @@ import React, {
   Text,
   TouchableHighlight,
   View,
+  StatusBar,
 } from 'react-native';
 
 var REQUEST_URL = 'http://www.techxlab.org/pages.json';
@@ -67,11 +62,36 @@ class homepage extends Component {
       return this.renderLoadingView();
     }
     return (
+      <View style={styles.all}>
+      <StatusBar
+       backgroundColor="blue"
+       barStyle="light-content"
+     />
+        <View style={styles.header}>
+          <Image
+            source={require('./icons/hamburger.png')}
+            style={styles.hamburger}
+          />
+          <Text style={styles.icon}>tel</Text>
+          <View style={styles.gap}>
+          </View>
+          <Image
+            source={require('./icons/search.png')}
+            style={styles.search}
+          />
+          <TouchableHighlight underlayColor="#DDDDDD" onPress={()=>this.test()}>
+            <Image
+              source={require('./icons/refresh.png')}
+              style={styles.refresh}
+            />
+          </TouchableHighlight>
+        </View>
       <ListView
         dataSource={this.state.dataSource}
         renderRow={this._renderRow}
         style={styles.listView}
       />
+      </View>
     );
   }
 
@@ -87,7 +107,7 @@ class homepage extends Component {
 
 
   test() {
-    console.log("Button works.`")
+    console.log("Button works.")
   }
 
   _renderRow(data) {
@@ -98,7 +118,6 @@ class homepage extends Component {
       tempUrl = tempUrl.replace(new RegExp("_", 'g'), "-");
       url="https://raw.githubusercontent.com/techxlab/images.techxlab.org/gh-pages" + tempUrl;
     }
-    console.log(data);
     return (
       <View style={styles.container}>
         <Image
@@ -115,6 +134,41 @@ class homepage extends Component {
 
 
 var styles = StyleSheet.create({
+  all: {
+    flex: 1,
+  },
+  header: {
+    paddingTop: 10,
+    backgroundColor: '#5EC54B',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  hamburger: {
+    width: 20,
+    height: 20,
+    margin: 20,
+  },
+  icon: {
+    fontSize: 28,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    paddingBottom: 5,
+  },
+  gap: {
+    flex: 1,
+  },
+  search: {
+    width: 20,
+    height: 20,
+    margin: 10,
+  },
+  refresh: {
+    width: 20,
+    height: 20,
+    margin: 10,
+    marginRight: 20,
+  },
   container: {
     flex: 1,
     flexDirection: 'row',
@@ -138,7 +192,6 @@ var styles = StyleSheet.create({
     height: 81,
   },
   listView: {
-    paddingTop: 20,
     backgroundColor: '#F5FCFF',
   },
 });
