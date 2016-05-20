@@ -1,4 +1,5 @@
 import React, {
+  ActivityIndicatorIOS,
   AppRegistry,
   AsyncStorage,
   Component,
@@ -10,7 +11,7 @@ import React, {
   View,
   StatusBar,
 } from 'react-native';
-
+ var singleScreen = require('./singleScreen');
 var REQUEST_URL = 'http://www.techxlab.org/pages.json';
 
 class homepage extends Component {
@@ -61,7 +62,6 @@ class homepage extends Component {
     return (
       <View style={styles.all}>
       <StatusBar
-       backgroundColor="blue"
        barStyle="light-content"
      />
         <View style={styles.header}>
@@ -76,7 +76,7 @@ class homepage extends Component {
             source={require('./icons/search.png')}
             style={styles.search}
           />
-          <TouchableHighlight underlayColor="#5EC54B" onPress={()=>this.fetchData()}>
+          <TouchableHighlight underlayColor="transparent" onPress={()=>this.fetchData()}>
             <Image
               source={require('./icons/refresh.png')}
               style={styles.refresh}
@@ -85,7 +85,7 @@ class homepage extends Component {
         </View>
       <ListView
         dataSource={this.state.dataSource}
-        renderRow={this._renderRow}
+        renderRow={this._renderRow.bind(this)}
         style={styles.listView}
       />
       </View>
@@ -93,16 +93,43 @@ class homepage extends Component {
   }
 
   renderLoadingView() {
-    return (
-      <View style={styles.container}>
-        <Text>
-          Loading ...
-        </Text>
+    return (      
+      <View style={styles.all}>
+        <StatusBar
+         barStyle="light-content"
+       />
+          <View style={styles.header}>
+            <Image
+              source={require('./icons/hamburger.png')}
+              style={styles.hamburger}
+            />
+            <Text style={styles.icon}>tel</Text>
+            <View style={styles.gap}>
+            </View>
+            <Image
+              source={require('./icons/search.png')}
+              style={styles.search}
+            />
+            <TouchableHighlight underlayColor="#5EC54B" onPress={()=>this.fetchData()}>
+              <Image
+                source={require('./icons/refresh.png')}
+                style={styles.refresh}
+              />
+            </TouchableHighlight>
+          </View>
+        <View style={styles.container}>
+          <ActivityIndicatorIOS
+            animating={this.state.animating}
+            style={[styles.centering, {height: 80}]}
+            size="large"
+          />
+        </View>
       </View>
     );
   }
 
-  _renderRow(data) {
+  _renderRow(data, sectionID, rowID, highlightRow) {
+    let oddRow = rowID % 2 == 1;
     var url = null;
     if(data.image!=null) {
       var tempUrl=data.image;
@@ -111,16 +138,32 @@ class homepage extends Component {
       url="https://raw.githubusercontent.com/techxlab/images.techxlab.org/gh-pages" + tempUrl;
     }
     return (
-      <View style={styles.container}>
-        <Image
-          source={{uri: url}}
-          style={styles.thumbnail}
-        />
-        <View style={styles.rightContainer}>
-          <Text style={styles.title}>{data.name}</Text>
+      <TouchableHighlight onPress={()=>this.nextPage(data)}>
+        <View style={[styles.container, oddRow && styles.oddRowStyle]}>
+          <Image
+            source={{uri: url}}
+            style={styles.thumbnail}
+          />
+          <View style={styles.rightContainer}>
+            <View style={styles.text}>
+            <Text numberOfLines={1} style={styles.title}>{data.name}</Text>
+            <Text numberOfLines={1} style={styles.subtitle}>{data['#contact']['name']}</Text>
+            </View>
+            <View style={styles.favorite}>
+
+            </View>
+          </View>
         </View>
-      </View>
+      </TouchableHighlight>
     );
+  }
+
+  nextPage(data) {
+    this.props.navigator.push({
+        title: data.name,
+        component: singleScreen,
+        passProps: {data},
+      });
   }
 }
 
@@ -166,22 +209,30 @@ var styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#FFFFFF',
+  },
+  oddRowStyle: {
+    backgroundColor: '#F3F2F1',
   },
   rightContainer: {
     flex: 1,
+    paddingLeft: 5,
+    paddingRight: 10,
   },
   title: {
-    fontSize: 20,
+    fontSize: 16,
+    fontWeight: 'bold',
     marginBottom: 8,
-    textAlign: 'center',
   },
-  year: {
-    textAlign: 'center',
+  subtitle: {
+    fontSize: 12,
   },
   thumbnail: {
-    width: 53,
-    height: 81,
+    margin: 5,
+    width: 102,
+    height: 60,
+    borderColor: "#AAAACC",
+    borderWidth: 1,
   },
   listView: {
     backgroundColor: '#F5FCFF',
