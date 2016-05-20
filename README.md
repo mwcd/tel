@@ -6,6 +6,6 @@
 4. Press the "Play" button in the top left corner
 
 ###Features to implement:
-*Locally stored photos
-*All searching/sorting
-*Favorites
+* Locally stored photos
+* All searching/sorting
+* Favorites
