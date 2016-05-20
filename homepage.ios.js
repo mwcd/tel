@@ -119,10 +119,10 @@ class homepage extends Component {
           </View>
         <View style={styles.container}>
           <ActivityIndicatorIOS
-        animating={this.state.animating}
-        style={[styles.centering, {height: 80}]}
-        size="large"
-      />
+            animating={this.state.animating}
+            style={[styles.centering, {height: 80}]}
+            size="large"
+          />
         </View>
       </View>
     );
@@ -145,8 +145,13 @@ class homepage extends Component {
             style={styles.thumbnail}
           />
           <View style={styles.rightContainer}>
+            <View style={styles.text}>
             <Text numberOfLines={1} style={styles.title}>{data.name}</Text>
             <Text numberOfLines={1} style={styles.subtitle}>{data['#contact']['name']}</Text>
+            </View>
+            <View style={styles.favorite}>
+
+            </View>
           </View>
         </View>
       </TouchableHighlight>
