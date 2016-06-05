@@ -11,7 +11,9 @@ import React, {
   View,
   StatusBar,
 } from 'react-native';
- var singleScreen = require('./singleScreen');
+import Drawer from 'react-native-drawer'
+var singleScreen = require('./singleScreen');
+var MyControlPanel = require('./ControlPanel')
 var REQUEST_URL = 'http://www.techxlab.org/pages.json';
 
 class homepage extends Component {
@@ -24,6 +26,7 @@ class homepage extends Component {
       dataSource: new ListView.DataSource({
         rowHasChanged: (row1, row2) => row1 !== row2,
       }),
+      data: null,
       loaded: false,
       refreshing: false,
     };
@@ -47,7 +50,7 @@ class homepage extends Component {
           if(result != null) {
             final=JSON.parse(result)
             this.setState({
-              dataSource: this.state.dataSource.cloneWithRows(final),
+              data: this.state.dataSource.cloneWithRows(final),
               loaded: true,
             });
           } else {
@@ -59,16 +62,24 @@ class homepage extends Component {
     if (!this.state.loaded) {
       return this.renderLoadingView();
     }
+    this.state.dataSource = this.state.data;
+    var ControlPanel = <MyControlPanel closeDrawer={() => {this.drawer.close()}} />
     return (
       <View style={styles.all}>
-      <StatusBar
-       barStyle="light-content"
-     />
-        <View style={styles.header}>
-          <Image
-            source={require('./icons/hamburger.png')}
-            style={styles.hamburger}
-          />
+        <StatusBar
+         barStyle="light-content"
+       />
+        <Drawer
+          ref={(ref) => this._drawer = ref}
+          content={ControlPanel}
+          >
+          <View style={styles.header}>
+          <TouchableHighlight underlayColor="transparent" onPress={()=>this._drawer.open()}>
+            <Image
+              source={require('./icons/hamburger.png')}
+              style={styles.hamburger}
+            />
+          </TouchableHighlight>
           <Text style={styles.icon}>tel</Text>
           <View style={styles.gap}>
           </View>
@@ -88,16 +99,18 @@ class homepage extends Component {
         renderRow={this._renderRow.bind(this)}
         style={styles.listView}
       />
+        </Drawer>
+        
       </View>
     );
   }
 
   renderLoadingView() {
-    return (      
+    return (   
       <View style={styles.all}>
         <StatusBar
          barStyle="light-content"
-       />
+        />
           <View style={styles.header}>
             <Image
               source={require('./icons/hamburger.png')}
