@@ -3,6 +3,7 @@ import React, {
   AppRegistry,
   AsyncStorage,
   Component,
+  Dimensions,
   Image,
   ListView,
   StyleSheet,
@@ -13,8 +14,31 @@ import React, {
 } from 'react-native';
 import Drawer from 'react-native-drawer'
 var singleScreen = require('./singleScreen');
-var MyControlPanel = require('./ControlPanel')
+var height = Dimensions.get('window').height;
+var width = Dimensions.get('window').width;
 var REQUEST_URL = 'http://www.techxlab.org/pages.json';
+
+const all = require('./icons/all.png');
+const all_alt = require('./icons/all_alt.png');
+const heart = require('./icons/heart.png');
+const heart_alt = require('./icons/heart_alt.png');
+const tools = require('./icons/tools.png');
+const tools_alt = require('./icons/tools_alt.png');
+const cooking = require('./icons/cooking.png');
+const cooking_alt = require('./icons/cooking_alt.png');
+const health = require('./icons/health.png');
+const health_alt = require('./icons/health_alt.png');
+const education = require('./icons/education.png');
+const education_alt = require('./icons/education_alt.png');
+const transport = require('./icons/transport.png');
+const transport_alt = require('./icons/transport_alt.png');
+const water = require('./icons/water.png');
+const water_alt = require('./icons/water_alt.png');
+const additional = require('./icons/additional.png');
+const additional_alt = require('./icons/additional_alt.png');
+
+
+
 
 class homepage extends Component {
   componentDidMount() {
@@ -29,6 +53,45 @@ class homepage extends Component {
       data: null,
       loaded: false,
       refreshing: false,
+      drawer: false,
+      categories: ['All solutions',
+                   'Favorites',
+                   'Agriculture & Tools',
+                   'Energy & Cooking',
+                   'Health & Medical Care',
+                   'Education & Connectivity',
+                   'Housing & Transport',
+                   'Water & Sanitation',
+                   'Additional Solutions'
+      ],
+      db_cats: ['agriculture',
+                'energy',
+                'medical',
+                'education',
+                'housing',
+                'water',
+                'other',
+      ],
+      curr_cat: 0,
+      icons: [all,
+              all_alt,
+              heart,
+              heart_alt,
+              tools,
+              tools_alt,
+              cooking,
+              cooking_alt,
+              health,
+              health_alt,
+              education,
+              education_alt,
+              transport,
+              transport_alt,
+              water,
+              water_alt,
+              additional,
+              additional_alt
+      ],
     };
   }
   fetchData(event) {
@@ -57,13 +120,25 @@ class homepage extends Component {
             this.fetchData
           }
         });
+    AsyncStorage.getItem('curr_cat', (err, result) => {
+          if(result != null) {
+            this.setState({
+              curr_cat: result,
+            });
+          } else {
+            this.setState({
+              curr_cat: 0,
+            });
+            AsyncStorage.setItem("curr_cat", JSON.stringify(0));
+          }
+    });
   }
    render() {
     if (!this.state.loaded) {
       return this.renderLoadingView();
     }
     this.state.dataSource = this.state.data;
-    var ControlPanel = <MyControlPanel closeDrawer={() => {this.drawer.close()}} />
+    
     return (
       <View style={styles.all}>
         <StatusBar
@@ -71,10 +146,102 @@ class homepage extends Component {
        />
         <Drawer
           ref={(ref) => this._drawer = ref}
-          content={ControlPanel}
+          openDrawerOffset={0.2}
+          captureGestures={false}
+          content={
+            <View style={styles.settings}>
+              <Image
+                source={require('./icons/settings_logo.png')}
+                style={styles.settingsLogo}
+              />
+              <View style={styles.buttons}>
+                <TouchableHighlight underlayColor="transparent" onPress={()=>this.change_cat(0)}>
+                  <View style={styles.indivButton}>
+                      <Image
+                        source={this.icon_color(0)}
+                        style={styles.catIcon}
+                      />
+                      <Text style={this.menuItem(0)}>{this.state.categories[0]}</Text>
+                  </View>
+                </TouchableHighlight>
+                <TouchableHighlight underlayColor="transparent" onPress={()=>this.change_cat(1)}>
+                  <View style={styles.indivButton}>
+                      <Image
+                        source={this.icon_color(1)}
+                        style={styles.catIcon}
+                      />
+                      <Text style={this.menuItem(1)}>{this.state.categories[1]}</Text>
+                  </View>
+                </TouchableHighlight>
+                <TouchableHighlight underlayColor="transparent" onPress={()=>this.change_cat(2)}>
+                  <View style={styles.indivButton}>
+                      <Image
+                        source={this.icon_color(2)}
+                        style={styles.catIcon}
+                      />
+                      <Text style={this.menuItem(2)}>{this.state.categories[2]}</Text>
+                  </View>
+                </TouchableHighlight>
+                <TouchableHighlight underlayColor="transparent" onPress={()=>this.change_cat(3)}>
+                  <View style={styles.indivButton}>
+                      <Image
+                        source={this.icon_color(3)}
+                        style={styles.catIcon}
+                      />
+                      <Text style={this.menuItem(3)}>{this.state.categories[3]}</Text>
+                  </View>
+                </TouchableHighlight>
+                <TouchableHighlight underlayColor="transparent" onPress={()=>this.change_cat(4)}>
+                  <View style={styles.indivButton}>
+                      <Image
+                        source={this.icon_color(4)}
+                        style={styles.catIcon}
+                      />
+                      <Text style={this.menuItem(4)}>{this.state.categories[4]}</Text>
+                  </View>
+                </TouchableHighlight>
+                <TouchableHighlight underlayColor="transparent" onPress={()=>this.change_cat(5)}>
+                  <View style={styles.indivButton}>
+                      <Image
+                        source={this.icon_color(5)}
+                        style={styles.catIcon}
+                      />
+                      <Text style={this.menuItem(5)}>{this.state.categories[5]}</Text>
+                  </View>
+                </TouchableHighlight>
+                <TouchableHighlight underlayColor="transparent" onPress={()=>this.change_cat(6)}>
+                  <View style={styles.indivButton}>
+                      <Image
+                        source={this.icon_color(6)}
+                        style={styles.catIcon}
+                      />
+                      <Text style={this.menuItem(6)}>{this.state.categories[6]}</Text>
+                  </View>
+                </TouchableHighlight>
+                <TouchableHighlight underlayColor="transparent" onPress={()=>this.change_cat(7)}>
+                  <View style={styles.indivButton}>
+                      <Image
+                        source={this.icon_color(7)}
+                        style={styles.catIcon}
+                      />
+                      <Text style={this.menuItem(7)}>{this.state.categories[7]}</Text>
+                  </View>
+                </TouchableHighlight>
+                <TouchableHighlight underlayColor="transparent" onPress={()=>this.change_cat(8)}>
+                  <View style={styles.indivButton}>
+                      <Image
+                        source={this.icon_color(8)}
+                        style={styles.catIcon}
+                      />
+                      <Text style={this.menuItem(8)}>{this.state.categories[8]}</Text>
+                  </View>
+                </TouchableHighlight>
+              </View>
+            </View>
+          }
           >
           <View style={styles.header}>
-          <TouchableHighlight underlayColor="transparent" onPress={()=>this._drawer.open()}>
+          <TouchableHighlight underlayColor="transparent" onPress={()=>this.switch()}>
             <Image
               source={require('./icons/hamburger.png')}
               style={styles.hamburger}
@@ -94,13 +261,12 @@ class homepage extends Component {
             />
           </TouchableHighlight>
         </View>
-      <ListView
-        dataSource={this.state.dataSource}
-        renderRow={this._renderRow.bind(this)}
-        style={styles.listView}
-      />
+        <ListView
+          dataSource={this.state.dataSource}
+          renderRow={this._renderRow.bind(this)}
+          style={styles.listView}
+        />
         </Drawer>
-        
       </View>
     );
   }
@@ -145,10 +311,10 @@ class homepage extends Component {
     let oddRow = rowID % 2 == 1;
     var url = null;
     if(data.image!=null) {
-      var tempUrl=data.image;
-      tempUrl = tempUrl.replace("tel_", "");
-      tempUrl = tempUrl.replace(new RegExp("_", 'g'), "-");
-      url="https://raw.githubusercontent.com/techxlab/images.techxlab.org/gh-pages" + tempUrl;
+      var tempUrl=data._hdr
+      tempUrl = tempUrl.substring(tempUrl.indexOf("image: ") + 7);
+      tempUrl = tempUrl.substring(0, tempUrl.indexOf("\n"));
+      url='http://images.techxlab.org' + tempUrl;
     }
     return (
       <TouchableHighlight onPress={()=>this.nextPage(data)}>
@@ -169,14 +335,64 @@ class homepage extends Component {
         </View>
       </TouchableHighlight>
     );
-  }
+  } 
+  
 
   nextPage(data) {
-    this.props.navigator.push({
-        title: data.name,
-        component: singleScreen,
-        passProps: {data},
+    if (this.state.drawer==true) {
+      this._drawer.close();
+      this.state.drawer=false;
+    } else {
+      this.props.navigator.push({
+          title: data.name,
+          component: singleScreen,
+          passProps: {data},
       });
+    }
+  }
+
+  switch() {
+    if (this.state.drawer==false) {
+      this._drawer.open();
+      this.state.drawer=true;
+    } else {
+      this._drawer.close();
+      this.state.drawer=false;
+    }
+  }
+
+  change_cat(num) {
+    this.setState({curr_cat: num});
+    AsyncStorage.setItem("curr_cat", JSON.stringify(num));
+    console.log('cat is now: ' + num);
+  }
+
+  menuItem(num) {
+    if (num == this.state.curr_cat) {
+      return {
+        fontSize: 16,
+        margin: 15,
+        marginLeft: 25,
+        color:'#FF9900', 
+        fontWeight:'bold',
+      };
+    } else {
+      return {
+        fontSize: 16,
+        margin: 15,
+        marginLeft: 25,
+        color:'#555555',
+        fontWeight:'bold',
+      };
+    }
+  }
+
+  icon_color(num) {
+    if(num==(this.state.curr_cat)) {
+      return this.state.icons[num*2+1];
+    } else {
+      return this.state.icons[num*2];
+    }
   }
 }
 
@@ -184,6 +400,26 @@ class homepage extends Component {
 var styles = StyleSheet.create({
   all: {
     flex: 1,
+  },
+  settings: {
+  },
+  settingsLogo: {
+    width: 4*width/5,
+    height: 4*width/15.287356322,
+  },
+  buttons: {
+    marginTop: 15
+  },
+  indivButton: {
+    marginLeft: 25,
+    flexWrap: 'wrap',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+  catIcon: {
+    width: 20,
+    height: 20,
   },
   header: {
     paddingTop: 10,

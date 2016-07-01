@@ -28,10 +28,10 @@ var width = Dimensions.get('window').width;
     var data = this.props.data;
     var url = null;
     if(data.image!=null) {
-      var tempUrl=data.image;
-      tempUrl = tempUrl.replace("tel_", "");
-      tempUrl = tempUrl.replace(new RegExp("_", 'g'), "-");
-      url="https://raw.githubusercontent.com/techxlab/images.techxlab.org/gh-pages" + tempUrl;
+      var tempUrl=data._hdr
+      tempUrl = tempUrl.substring(tempUrl.indexOf("image: ") + 7);
+      tempUrl = tempUrl.substring(0, tempUrl.indexOf("\n"));
+      url='http://images.techxlab.org' + tempUrl;
     }
     var section1 = this.remNewlines(data['_txt']);
     var isHistory = data['#history-and-development'] != null ? true : false;
