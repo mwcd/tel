@@ -51,9 +51,12 @@ class homepage extends Component {
         rowHasChanged: (row1, row2) => row1 !== row2,
       }),
       data: null,
+      sourceData: null,
       loaded: false,
       refreshing: false,
       drawer: false,
+      curr_cat: 0,
+      favorites: {null},
       categories: ['All solutions',
                    'Favorites',
                    'Agriculture & Tools',
@@ -72,7 +75,6 @@ class homepage extends Component {
                 'water',
                 'other',
       ],
-      curr_cat: 0,
       icons: [all,
               all_alt,
               heart,
@@ -109,36 +111,49 @@ class homepage extends Component {
       .done();
   }
   loadData() {
+    //Load JSON data
     AsyncStorage.getItem('data', (err, result) => {
           if(result != null) {
             final=JSON.parse(result)
             this.setState({
+              //for listview
               data: this.state.dataSource.cloneWithRows(final),
+              // raw data
+              sourceData: final,
               loaded: true,
             });
           } else {
             this.fetchData
           }
         });
+    //Load user's current category
     AsyncStorage.getItem('curr_cat', (err, result) => {
           if(result != null) {
-            this.setState({
-              curr_cat: result,
-            });
+            this.change_cat(JSON.parse(result));
           } else {
-            this.setState({
-              curr_cat: 0,
-            });
+            this.change_cat(0);
             AsyncStorage.setItem("curr_cat", JSON.stringify(0));
           }
     });
+    //Load favorites
+    AsyncStorage.getItem('favorites', (err, result) => {
+      console.log(result);
+          if (result != null) {
+            this.setState({
+              favorites: JSON.parse(result),
+            });
+          } else {
+            this.setState({
+              favorites: [],
+            });
+          }
+    });
   }
-   render() {
+
+  render() {
     if (!this.state.loaded) {
       return this.renderLoadingView();
     }
-    this.state.dataSource = this.state.data;
-    
     return (
       <View style={styles.all}>
         <StatusBar
@@ -241,7 +256,7 @@ class homepage extends Component {
           }
           >
           <View style={styles.header}>
-          <TouchableHighlight underlayColor="transparent" onPress={()=>this.switch()}>
+          <TouchableHighlight underlayColor="transparent" onPress={()=>this.switchDrawerState()}>
             <Image
               source={require('./icons/hamburger.png')}
               style={styles.hamburger}
@@ -262,8 +277,10 @@ class homepage extends Component {
           </TouchableHighlight>
         </View>
         <ListView
-          dataSource={this.state.dataSource}
+          dataSource={this.state.data}
+          removeClippedSubviews={true}
           renderRow={this._renderRow.bind(this)}
+          renderScrollComponent={(props) =><React.RecyclerViewBackedScrollView {...props}/>}
           style={styles.listView}
         />
         </Drawer>
@@ -310,6 +327,7 @@ class homepage extends Component {
   _renderRow(data, sectionID, rowID, highlightRow) {
     let oddRow = rowID % 2 == 1;
     var url = null;
+    //create image url
     if(data.image!=null) {
       var tempUrl=data._hdr
       tempUrl = tempUrl.substring(tempUrl.indexOf("image: ") + 7);
@@ -329,7 +347,6 @@ class homepage extends Component {
             <Text numberOfLines={1} style={styles.subtitle}>{data['#contact']['name']}</Text>
             </View>
             <View style={styles.favorite}>
-
             </View>
           </View>
         </View>
@@ -337,8 +354,10 @@ class homepage extends Component {
     );
   } 
   
-
+  //Only load new page if drawer is closed. Otherwise, close it.
   nextPage(data) {
+    sourceData=this.props.sourceData;
+    var favorites = this.state.favorites
     if (this.state.drawer==true) {
       this._drawer.close();
       this.state.drawer=false;
@@ -346,12 +365,15 @@ class homepage extends Component {
       this.props.navigator.push({
           title: data.name,
           component: singleScreen,
-          passProps: {data},
+          passProps: {data,
+            favorites,
+            sourceData,
+          },
       });
     }
   }
 
-  switch() {
+  switchDrawerState() {
     if (this.state.drawer==false) {
       this._drawer.open();
       this.state.drawer=true;
@@ -364,7 +386,24 @@ class homepage extends Component {
   change_cat(num) {
     this.setState({curr_cat: num});
     AsyncStorage.setItem("curr_cat", JSON.stringify(num));
-    console.log('cat is now: ' + num);
+    my_cat = this.state.curr_cat;
+    temp_data = this.state.sourceData;
+    data_length = temp_data.length;
+    if(num==0) {
+      final_data = temp_data;
+    } else if (num == 1) {
+      final_data = this.state.favorites;
+    } else {
+      var final_data = [];
+      for (i=0; i < data_length; i++) {
+        if(temp_data[i].category==this.state.db_cats[my_cat-2]) {
+          final_data.push(temp_data[i]);
+        }
+      }
+    }
+    this.setState({
+      data: this.state.dataSource.cloneWithRows(final_data),
+    });
   }
 
   menuItem(num) {

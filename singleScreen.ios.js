@@ -7,6 +7,7 @@ var React = require('react');
 var ReactNative = require('react-native');
 var {
   AppRegistry,
+  AsyncStorage,
   Component,
   Dimensions,
   Image,
@@ -21,8 +22,12 @@ var {
  } = ReactNative;
 var REQUEST_URL = 'http://api.dirt.frontfish.net/incidents'
 var height = Dimensions.get('window').height;
-var width = Dimensions.get('window').width;      
- class incidentScreen extends Component {
+var width = Dimensions.get('window').width;
+
+const favorite = require('./icons/heart_alt.png');
+const not_favorite = require('./icons/heart_white.png');
+
+class solutionScreen extends Component {
 
   render() {
     var data = this.props.data;
@@ -39,7 +44,7 @@ var width = Dimensions.get('window').width;
       var section2 = this.remNewlines(data['#history-and-development']['_txt']);
     }
     var section3 = this.remNewlines(data['#availability']['_txt']);
-    var isSpecifications = data['#history-and-development'] != null ? true : false;
+    var isSpecifications = data['#specifications'] != null ? true : false;
     if (isSpecifications) {
       var section4 = this.remNewlines(data['#specifications']['_txt']);
     }
@@ -59,6 +64,12 @@ var width = Dimensions.get('window').width;
           <TouchableHighlight underlayColor="transparent" onPress={()=>this.props.navigator.pop()}>
             <Image
               source={require('./icons/back.png')}
+              style={styles.back}
+            />
+          </TouchableHighlight>
+          <TouchableHighlight underlayColor="transparent" onPress={()=>this.toggleFavorite(data)}>
+            <Image
+              source={this.favPic(data)}
               style={styles.back}
             />
           </TouchableHighlight>
@@ -113,6 +124,41 @@ var width = Dimensions.get('window').width;
     }
     return indivData;
   }
+
+  favPic(data) {
+    if (this.favoriteIndex(data)!=-1) {
+      return favorite;
+    } else {
+      return not_favorite;
+    }
+  }
+
+  favoriteIndex(data) {
+    temp_data = this.props.favorites
+    data_length = this.props.favorites.length;
+    for (i=0; i < data_length; i++) {
+        if(temp_data[i]._hdr==data._hdr) {
+          return i;
+        }
+      }
+      return -1;
+  }
+
+  toggleFavorite(data) {
+    favSpot = this.favoriteIndex(data);
+    favs = this.props.favorites;
+    if (favSpot!=-1) {
+      this.props.favorites.splice(favSpot,1);
+      AsyncStorage.setItem("favorites", JSON.stringify(favs));
+    } else {
+      this.props.favorites.push(data);
+      AsyncStorage.setItem("favorites", JSON.stringify(favs));
+    }
+    this.setState({
+      reload: null,
+    });
+  }
+
   mail(data) {
     var mailArray = data['#contact']['_txt'].split(" ");
     var address = mailArray[mailArray.length - 3];
@@ -121,7 +167,7 @@ var width = Dimensions.get('window').width;
       if (supported) {
         Linking.openURL(address);
       } else {
-        console.log('Don\'t know how to open URI: ' + data);
+        console.log('Don\'t know how to open URI: ' + mailData);
       }
     });
   }
@@ -204,4 +250,4 @@ var width = Dimensions.get('window').width;
   },
  });
 
-module.exports = incidentScreen;
+module.exports = solutionScreen;
