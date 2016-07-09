@@ -427,12 +427,6 @@ class homepage extends Component {
       return this.state.icons[num*2];
     }
   }
-
-  reloadPage() {
-    this.setState({
-      loaded: true,
-    });
-  }
 }
 
 
