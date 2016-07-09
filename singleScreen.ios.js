@@ -155,7 +155,7 @@ class solutionScreen extends Component {
       AsyncStorage.setItem("favorites", JSON.stringify(favs));
     }
     this.setState({
-      reload: null,
+      loaded: true,
     });
   }
 

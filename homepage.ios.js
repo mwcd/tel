@@ -115,29 +115,13 @@ class homepage extends Component {
     AsyncStorage.getItem('data', (err, result) => {
           if(result != null) {
             final=JSON.parse(result)
-            this.setState({
-              //for listview
-              data: this.state.dataSource.cloneWithRows(final),
-              // raw data
-              sourceData: final,
-              loaded: true,
-            });
+            this.state.sourceData = final;
           } else {
             this.fetchData
           }
         });
-    //Load user's current category
-    AsyncStorage.getItem('curr_cat', (err, result) => {
-          if(result != null) {
-            this.change_cat(JSON.parse(result));
-          } else {
-            this.change_cat(0);
-            AsyncStorage.setItem("curr_cat", JSON.stringify(0));
-          }
-    });
     //Load favorites
     AsyncStorage.getItem('favorites', (err, result) => {
-      console.log(result);
           if (result != null) {
             this.setState({
               favorites: JSON.parse(result),
@@ -146,6 +130,15 @@ class homepage extends Component {
             this.setState({
               favorites: [],
             });
+          }
+    });
+    //Load user's current category
+    AsyncStorage.getItem('curr_cat', (err, result) => {
+          if(result != null) {
+            this.change_cat(JSON.parse(result));
+          } else {
+            this.change_cat(0);
+            AsyncStorage.setItem("curr_cat", JSON.stringify(0));
           }
     });
   }
@@ -384,7 +377,7 @@ class homepage extends Component {
   }
 
   change_cat(num) {
-    this.setState({curr_cat: num});
+    this.state.curr_cat = num;
     AsyncStorage.setItem("curr_cat", JSON.stringify(num));
     my_cat = this.state.curr_cat;
     temp_data = this.state.sourceData;
@@ -403,6 +396,7 @@ class homepage extends Component {
     }
     this.setState({
       data: this.state.dataSource.cloneWithRows(final_data),
+      loaded: true,
     });
   }
 
@@ -432,6 +426,12 @@ class homepage extends Component {
     } else {
       return this.state.icons[num*2];
     }
+  }
+
+  reloadPage() {
+    this.setState({
+      loaded: true,
+    });
   }
 }
 
