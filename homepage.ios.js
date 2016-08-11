@@ -8,6 +8,7 @@ import React, {
   ListView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableHighlight,
   View,
   StatusBar,
@@ -107,8 +108,19 @@ class homepage extends Component {
         this.setState({
           loaded: true,
         });
+        this.storeImages(responseData.Solutions);
       })
       .done();
+  }
+  storeImages(solutionList) {
+    console.log(solutionList);
+    for (i = 0; i < solutionList.length; i++) {
+      var tempUrl=solutionList[i]._hdr
+      tempUrl = tempUrl.substring(tempUrl.indexOf("image: ") + 7);
+      tempUrl = tempUrl.substring(0, tempUrl.indexOf("\n"));
+      url='http://images.techxlab.org' + tempUrl;
+      console.log(url);
+    }
   }
   loadData() {
     //Load JSON data
@@ -256,12 +268,17 @@ class homepage extends Component {
             />
           </TouchableHighlight>
           <Text style={styles.icon}>tel</Text>
-          <View style={styles.gap}>
+          <View style={styles.searchBar}>
+            <TextInput
+              autoCapitalize="none"
+              returnKeyType='search'
+              placeholder="Search..."
+              clearButtonMode='always'
+              style={styles.searchBarInput}
+
+              onfocus={()=>this.beginSearching()}
+            />
           </View>
-          <Image
-            source={require('./icons/search.png')}
-            style={styles.search}
-          />
           <TouchableHighlight underlayColor="transparent" onPress={()=>this.fetchData()}>
             <Image
               source={require('./icons/refresh.png')}
@@ -288,30 +305,45 @@ class homepage extends Component {
          barStyle="light-content"
         />
           <View style={styles.header}>
+          <TouchableHighlight underlayColor="transparent">
             <Image
               source={require('./icons/hamburger.png')}
               style={styles.hamburger}
             />
-            <Text style={styles.icon}>tel</Text>
-            <View style={styles.gap}>
-            </View>
-            <Image
-              source={require('./icons/search.png')}
-              style={styles.search}
+          </TouchableHighlight>
+          <Text style={styles.icon}>tel</Text>
+          <View style={styles.searchBar}>
+            <TextInput
+              autoCapitalize="none"
+              autoCorrect={false}
+              returnKeyType='search'
+              onChange={this.props.onSearchChange}
+              placeholder="Search..."
+              onFocus={this.props.onFocus}
+              style={styles.searchBarInput}
             />
-            <TouchableHighlight underlayColor="#5EC54B" onPress={()=>this.fetchData()}>
-              <Image
-                source={require('./icons/refresh.png')}
-                style={styles.refresh}
-              />
-            </TouchableHighlight>
           </View>
-        <View style={styles.container}>
-          <ActivityIndicatorIOS
-            animating={this.state.animating}
-            style={[styles.centering, {height: 80}]}
-            size="large"
-          />
+          <TouchableHighlight underlayColor="transparent">
+            <Image
+              source={require('./icons/refresh.png')}
+              style={styles.refresh}
+            />
+          </TouchableHighlight>
+        </View>
+        <View style={styles.loadingContainer}>
+          <View style={styles.loadingInner}>
+            <Text style={styles.loadingBig}>Loading data</Text>
+          </View>
+          <View style={styles.loadingInner}>
+            <Text style={styles.loadingSmall}>This may take a few minutes</Text>
+          </View>
+          <View style={styles.loadingInner}>
+            <ActivityIndicatorIOS
+              animating={this.state.animating}
+              style={[styles.centering, {height: 80}]}
+              size="large"
+            />
+          </View>
         </View>
       </View>
     );
@@ -346,7 +378,7 @@ class homepage extends Component {
       </TouchableHighlight>
     );
   } 
-  
+
   //Only load new page if drawer is closed. Otherwise, close it.
   nextPage(data) {
     sourceData=this.props.sourceData;
@@ -376,6 +408,7 @@ class homepage extends Component {
     }
   }
 
+  //make sure icon that needs to be orange is orange
   change_cat(num) {
     this.state.curr_cat = num;
     AsyncStorage.setItem("curr_cat", JSON.stringify(num));
@@ -443,6 +476,13 @@ var styles = StyleSheet.create({
   buttons: {
     marginTop: 15
   },
+  loadingBig: {
+    fontSize: 20,
+  },
+  loadingSmall: {
+    fontSize: 15,
+  },
+
   indivButton: {
     marginLeft: 25,
     flexWrap: 'wrap',
@@ -455,7 +495,7 @@ var styles = StyleSheet.create({
     height: 20,
   },
   header: {
-    paddingTop: 10,
+    paddingTop: 15,
     backgroundColor: '#5EC54B',
     flexDirection: 'row',
     alignItems: 'center',
@@ -464,27 +504,21 @@ var styles = StyleSheet.create({
   hamburger: {
     width: 20,
     height: 20,
-    margin: 20,
+    margin: 15,
   },
   icon: {
     fontSize: 28,
     color: '#FFFFFF',
     fontWeight: 'bold',
-    paddingBottom: 5,
+    marginRight: 15,
   },
   gap: {
     flex: 1,
   },
-  search: {
-    width: 20,
-    height: 20,
-    margin: 10,
-  },
   refresh: {
     width: 20,
     height: 20,
-    margin: 10,
-    marginRight: 20,
+    margin:15,
   },
   container: {
     flex: 1,
@@ -493,6 +527,19 @@ var styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  loadingInner: {
+    flexWrap: 'wrap',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    marginBottom: 10,
+  },
   oddRowStyle: {
     backgroundColor: '#F3F2F1',
   },
@@ -500,11 +547,6 @@ var styles = StyleSheet.create({
     flex: 1,
     paddingLeft: 5,
     paddingRight: 10,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
   },
   subtitle: {
     fontSize: 12,
@@ -518,6 +560,17 @@ var styles = StyleSheet.create({
   },
   listView: {
     backgroundColor: '#F5FCFF',
+  },
+  searchBar: {
+    flex: 1,
+    padding: 3,
+    paddingLeft: 8,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 4,
+  },
+  searchBarInput: {
+    fontSize: 15,
+    height: 28,
   },
 });
 
